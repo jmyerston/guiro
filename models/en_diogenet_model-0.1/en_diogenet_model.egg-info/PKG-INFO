@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: en-diogenet-model
+Version: 0.1
+Summary: English multi-task CNN trained on OntoNotes. Assigns context-specific token vectors, POS tags, dependency parse and named entities.
+Home-page: https://diogenet.ucsd.edu
+Author: Jacobo Myerston
+Author-email: contact@diogenet.ucsd.edu
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
