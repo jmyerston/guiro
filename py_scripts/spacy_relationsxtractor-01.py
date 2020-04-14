@@ -6,9 +6,9 @@ import spacy
 from spacy import displacy
 from spacy.matcher import Matcher
 
-text_as_string = open('paragraph.txt', 'r').read()
+text_as_string = open('../texts/porphyry.txt', 'r').read()
 text_as_string = text_as_string.replace("\r"," ").replace("\n"," ")
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_diogenet_model")
 matcher = Matcher(nlp.vocab)
 matched_sents = []  # Collect data of matched sentences to be visualized
 
