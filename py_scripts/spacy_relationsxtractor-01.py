@@ -28,8 +28,15 @@ def collect_sents(matcher, doc, i, matches):
     matched_sents.append({"text": sent.text, "ents": match_ents})
 
 # Pythagoras was the son of Mnesarchus
-pattern_son_of = [{},  {"LEMMA": "be"}, {"LOWER": "the"}, {"LOWER": "son"}, {"LOWER": "of"},
-           {}]
+pattern_son_of = [{},  {"LEMMA": "be"}, {"LOWER": "the"}, {"LOWER": "son"}, {"LOWER": "of"},{}]
+
+
+pattern_son_of2 = [{'ENT_TYPE': 'PERSON'},
+           {'LEMMA': 'be', 'OP': '?'},
+           {'POS': 'DET', 'OP': '?'},
+           {'LEMMA': 'son'},
+           {'POS': 'ADP', 'OP': '?'},
+           {'ENT_TYPE': 'PERSON'}]
 # Many think that Pythagoras was the son of Mnesarchus, but they differ as to the latter's race;
 # some thinking him a Samian, while Neanthes, in the fifth book of his Fables states he was a Syrian,
 # from the city of Tyre.
@@ -37,9 +44,18 @@ pattern_nationality = [{"ENT_TYPE": "GPE"}]
 pattern_city = [{"LOWER": "from"}, {"LOWER": "the"}, {"LOWER": "city"}, {"LOWER": "of"},
            {}]
 
-matcher.add("son_of", collect_sents, pattern_son_of)  # add pattern´´´´´´´´´
+pattern_went_to = [{"ENT_TYPE": "PERSON", "OP": "?"},
+                   {"POS": "PRON", "OP": "?"},
+                   {"TEXT": {"REGEX": ".*?"}, "OP": "?"}, 
+                   {"LEMMA": {"REGEX": "go|sail|take"}},
+                   {"TEXT": {"REGEX": "to|towards"}},
+                   {"ENT_TYPE": "GPE"}]
+
+matcher.add("son_of", collect_sents, pattern_son_of)  # add pattern´´´
+matcher.add("son_of2", collect_sents, pattern_son_of2)
 matcher.add("nationality", collect_sents, pattern_nationality)
 matcher.add("from_city", collect_sents, pattern_city)
+matcher.add("went_to", collect_sents, pattern_went_to)
 
 doc = nlp(text_as_string)
 matches = matcher(doc)
