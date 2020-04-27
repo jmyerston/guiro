@@ -48,5 +48,18 @@ matches = matcher(doc)
 # set manual=True to make displaCy render straight from a dictionary
 # (if you're not running the code within a Jupyer environment, you can
 # use displacy.serve instead)
-# displacy.render(matched_sents, style="ent", manual=True)
-displacy.serve(matched_sents, style="ent", manual=True)
+
+#displacy.serve(matched_sents, style="ent", manual=True)
+
+# In this case displacy.render is used in order to create different files than be further distributed and studied
+
+sentence_spans = list(doc.sents)
+html_sentence_spans = displacy.render(sentence_spans, style="dep", page=True)
+open('sentence_spans.html','w', encoding='utf-8').write(html_sentence_spans)
+
+html_doc = displacy.render(doc, style='ent', page=True)
+open('doc.html','w', encoding='utf-8').write(html_doc)
+
+html_matched_sents = displacy.render(matched_sents, style="ent", manual=True, page=True)
+open('matched_sents.html','w', encoding='utf-8').write(html_matched_sents)
+
