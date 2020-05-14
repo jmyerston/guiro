@@ -1,0 +1,51 @@
+On the extraction of dependency relations in Diogenet
+
+J. Dávila
+
+As promised, this is a short manual to guide the use of a script to extract
+relations from text using dependency patterns. The script is in the repository
+
+relation_extraction_diogenet.py
+
+But, as a methodological strategy, I recommend the use of this other script
+to first display, with displacy, the actual tree for a whole sentence:
+
+spacy-dependency-tree.py
+
+to be able to see the relations before encoding them. I have encoded the following
+7, related to the went_to relations in the Porphyry book.
+
+#1 example = "taken|auxpass|was taken|prep|to to|pobj|ENTITY_TWO"
+#2 example = "returned|nsubj|ENTITY_ONE returned|prep|to to|pobj|ENTITY_TWO"
+#x example = "sailing|prep|to to|pobj|ENTITY_ONE took|nsubj|ENTITY_TWO took|dobj|ENTITY_THREE"
+#3 example = "took|nsubj|ENTITY_TWO took|dobj|ENTITY_THREE"
+#3a example = "sailing|prep|to to|pobj|ENTITY_ONE"
+#x example = "sailing|prep|to to|pobj|ENTITY_ONE took|nsubj|ENTITY_TWO"
+#x example = "opened|nsubj|ENTITY_ONE returning|prep|to to|pobj|ENTITY_TWO"
+#4 example = "Returning|prep|to to|pobj|ENTITY_TWO"
+#5 example = "returned|prep|to to|pobj|ENTITY_TWO"
+#6 example = "Going|prep|to to|pobj|ENTITY_ONE"
+example = "went|nsubj|ENTITY_ONE went|prep|to to|pobj|ENTITY_TWO"
+
+which are inspired by the following sentences
+
+#1 sent = "There also was born his son Pythagoras, who early manifested studiousness, but was later taken to Tyre, and there entrusted to the Chaldeans, whose doctrines he imbibed."
+#2 sent = "Thence he returned to Ionia, where he first studied under the Syrian Pherecydes, then also under Hermodamas the Creophylian who at that time was an old man residing in Samos."
+#3 sent = "On sailing to Italy, Mnesarchus took the youth Pythagoras with him."
+#4 sent = "Returning to Ionia, he opened in his own country, a school, which is even now called Pythagoras's Semicircles, in which the Samians meet to deliberate about matters of common interest."
+#5 sent = "Pythagoras then, longing to be with Hermodamas the Creophylian , returned to Samos."
+#6 sent = "Going to Crete, Pythagoras besought initiation from the priests of Morgos, one of the Idaean Dactyli, by whom he was purified with the meteoritic thunder-stone."
+sent = "Pythagoras then went to Delos, to visit the Syrian Pherecydes, formerly his teacher, who was dangerously sick, to nurse him."
+
+the images of the trees can be seen in png files in the repository. 
+
+There are many variants to be explored, like the use of lemmas instead of the
+actual words and the mixtures of lower and uppercases. The code is underdeveloped
+for those cases and it is not easy to extend.
+
+But we can start creating patterns to test them with the texts in preliminary
+fashion.
+
+Let us talk about that.
+
+End of the report.
