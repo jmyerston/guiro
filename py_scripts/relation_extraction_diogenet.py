@@ -169,7 +169,7 @@ def check_for_non_trees(rules: List[List[str]]):
 #4 example = "Returning|prep|to to|pobj|ENTITY_TWO"
 #5 example = "returned|prep|to to|pobj|ENTITY_TWO"
 #6 example = "Going|prep|to to|pobj|ENTITY_ONE"
-example = "went|nsubj|ENTITY_ONE went|prep|to to|pobj|ENTITY_TWO"
+example = "go|nsubj|ENTITY_ONE go|prep|to to|pobj|ENTITY_TWO"
 
 
 #sent = "The ICE inhibitor Z-YVAD-FMK prevented the release of IL-1beta evoked by DNFB ."
@@ -262,7 +262,7 @@ def construct_pattern(rules: List[List[str]]):
             pattern.append(node)
             add_node(child, pattern)
 
-    pattern = [{"SPEC": {"NODE_NAME": root}, "PATTERN": {"ORTH": root}}]
+    pattern = [{"SPEC": {"NODE_NAME": root}, "PATTERN": {"LEMMA": root}}]
     add_node(root, pattern)
 
     assert len(pattern) < 20
