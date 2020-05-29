@@ -1,0 +1,127 @@
+Relations extractor with Spacy
+Preliminary Report
+2020, April 26th.
+Jacinto Dávila
+
+Dear Jacobo,
+
+I'm writing this in English so that we can discuss it with colleagues and students
+on your side. I have been checking on Spacy's capabilities for our project of
+extracting, with the help of computers, relations among people referenced in
+historical texts.
+
+Spacy's underlying approach to NLP is based on the use of linguistic models obtained
+from neural networks, NN. They employ mature technology to train NNs and produce
+statistical models to annotate parts of speech, POS, and entities types, NER, that
+can later be accessed by other objects via their Python API.
+
+The question we have been trying to answer is whether the same technology is useful
+to tag and extract relations as mentioned before. My impression now is that Spacy
+can indeed be useful to some extend to tag relations in historical texts provided
+we can combine it with some strategy to tag examples to train the parser. I still
+have not tried that other product from the makers of Spacy, prodigy, to annotate
+texts, but it is clear that it is designed just to help humans annotate relevant
+examples for training. I wonder whether one can attach an external description of
+the relation beyond just tagging words within sentences
+
+In any case, to see how this could work out with Spacy, I adapted the script in
+https://github.com/explosion/spaCy/tree/master/examples/training/train_intent_parser.py
+which is an example of how "Using the parser to recognise your own semantics" to
+extract relations like the ones we are looking for. The new script is
+
+training_for_relations.py
+
+which runs like a shell script (no need invoking python before).
+
+I invented some examples for this experiment. This is the first:
+
+(
+    "Many think that Pythagoras was the son of Mnesarchus",
+    {
+        "heads": [1, 1, 4, 4, 1, 6, 4, 6, 7],  # index of token head
+        "deps": ["-", "ROOT", "-", "SON", "-", "-", "RELATION" , "-","PARENT"],
+    },
+),
+
+which is very easily obtained with:
+
+# import spacy
+# nlp = spacy.load("en_core_web_sm")
+# doc = nlp("Many think that Pythagoras was the son of Mnesarchus")
+# print([t.head.i for t in doc])
+# print([t.dep_ for t in doc])
+
+and then changing the output for deps (dependency relations already in the model)
+so that one can indicate a new useful tagging for words.
+
+Notice that this time I could associate an actual token with the the tag RELATION
+which could later be used to build that csv file with the table of
+
+RELATION SON PARENT
+
+However, that is not always possible, like for instance with:
+
+(
+    "some think Pythagoras a Samian",
+    {
+        "heads": [1, 1, 4, 4, 1],
+        "deps": ["-", "ROOT",  "PERSON", "-", "NATIONALITY"],
+    },
+),
+
+as in this sentence there is no explicit word for the relation, although we could
+still build the report
+
+NATIONALITY PERSON
+
+without naming the relation.
+
+Predicate invention (relations naming) is in fact a separate issue in the literature
+of machine learning. So, perhaps this is a point in which we could draw the line.
+If, however, we could build a collection of examples with the relation annotated
+we could leave the door open for other approaches.
+
+Another aspect that is showing in this small example is that we would have to train
+the parser for each relation at a time. The reason for this is, I think, related
+with the nature of neural nets. A NN can be depicted as a collection of mathematical
+functions like
+
+FO(X) = W0*(F11(X) + F12(X)) if X > H0; O otherwise.
+..
+Fij(X) =  Wi*(F11(X) + F12(X)) if X > Hi; O otherwise.
+
+To train the network, the system is set into short circuit by fixing the output
+for a given input (all encoded as numbers, like spacy does) both obtained from
+a given example. The Wis and His are then calculated to produce a set that can
+predict that output given that input. If we mix relations, unlike POS and NER that
+attach their meaning to one token or a few, we could interfere with other relations.
+
+I think this already can be seen in the poor output of this small exercise:
+
+# actual output for the new examples
+# Many think that Pythagoras was the son of Mnesarchus, but they differ as to the latter's race; some thinking him a Samian, while Neanthes, in the fifth book of his Fables states he was a Syrian, from the city of Tyre
+# [('think', 'ROOT', 'think'), ('Pythagoras', 'SON', 'was'), ('son', 'NATIONALITY', 'was'), ('states', 'TEACHER', ','), ('he', 'PERSON', 'was'), ('Syrian', 'NATIONALITY', 'was'), ('Tyre', 'PARENT', 'of')]
+# As a famine had arisen in Samos, Mnesarchus went thither to trade, and was naturalized there
+# [('famine', 'ROOT', 'famine'), ('trade', 'NATIONALITY', ','), ('there', 'NATIONALITY', 'was')]
+# There also was born his son Pythagoras, who early manifested studiousness, but was later taken to Tyre, and there entrusted to the Chaldeans, whose doctrines he imbibed
+# [('was', 'ROOT', 'was'), ('Pythagoras', 'PERSON', ','), ('studiousness', 'NATIONALITY', ','), ('he', 'STUDENT', 'imbibed'), ('imbibed', 'TEACHER', ',')]
+# Thence he returned to Ionia, where he first studied under the Syrian Pherecydes, then also under Hermodamas the Creophylian who at that time was an old man residing in Samos
+# [('studied', 'ROOT', 'studied'), ('Pherecydes', 'TEACHER', 'under'), ('time', 'TEACHER', 'who'), ('Samos', 'NATIONALITY', 'old')]
+
+Thus, my recommendation is to explore the possibilities for annotation with https://prodi.gy
+hopefully including some other descriptions for the relation like:
+
+(
+    "where Pythagoras first studied under the Syrian Pherecydes",
+    {
+        "heads": [3, 3, 3, 3, 3, 7, 7, 4],
+        "deps": ['-', 'STUDENT', '-', 'ROOT', '-', '-', '-', 'TEACHER'],
+    },
+    "study_under('Pythagoras', 'Pherecydes')",
+),
+
+There are, of course, so many other aspects of this problem to be investigated.
+But we could start with the collection of the examples to train the parser and
+use it to process some texts to see how the whole pipeline behaves.
+
+End of the report
