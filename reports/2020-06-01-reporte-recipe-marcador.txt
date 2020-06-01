@@ -1,0 +1,31 @@
+On the new custom recipe "marcador.py"
+
+J. Dávila
+
+
+I've managed to encode a custom recipe for prodigy that takes a jsonl file, with texts, and stream them through to prodigy. In the process, the texts get processed by a dependency matcher that marks grammatical relations that correspond to logical relations we are interested in. It also produces a csv file with a record of all the instances of the relation found in the whole stream. 
+
+It is currently hardcoded for the relation went to and the file went_to_relation.csv. But it could be parametrized to use any file and relation. 
+
+We also have an auxilary recipe to produce the jsonl file with the texts as inputs. I just put some .txt source files in a directory ./txt and then run this:
+
+prodigy load_data ./txt -F load_data.py > books.jsonl
+
+This created the file books.jsonl which I can use as input to call marcador.py, like this
+
+
+prodigy marcador oneset ./books.jsonl -F ./marcador.py 
+
+Using oneset as the name for my dataset in the prodigy's database. 
+
+Another useful command is
+
+prodigy db-out oneset ./txt
+
+to get the dataset out of the database and into a file in the directory ./txt
+
+All the files, including the py, jsonl and txt files are in the repository. 
+
+End of report
+
+
