@@ -1,0 +1,8 @@
+taken|auxpass|was taken|prep|to to|pobj|ENTITY_TWO
+returned|nsubj|ENTITY_ONE returned|prep|to to|pobj|ENTITY_TWO
+took|nsubj|ENTITY_TWO took|dobj|ENTITY_THREE
+sailing|prep|to to|pobj|ENTITY_ONE
+Returning|prep|to to|pobj|ENTITY_TWO
+returned|prep|to to|pobj|ENTITY_TWO
+Going|prep|to to|pobj|ENTITY_ONE
+went|nsubj|ENTITY_ONE went|prep|to to|pobj|ENTITY_TWO

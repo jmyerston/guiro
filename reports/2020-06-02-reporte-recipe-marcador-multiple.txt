@@ -1,0 +1,29 @@
+On an adaptation of custom recipe "marcador.py" as "marcadormultiple.py"
+
+J. Dávila
+
+I'm reporting on variants of the recipes to allow for 1) texts with paragraphs and 2) process multiple patterns read from a separate file. 
+
+
+For 1) we now have the recipe load_text_by_paragraph.py which can be invoked like this:
+
+prodigy load_text ./txt -F load_text_by_paragraph.py > books2.jsonl
+
+to store all the contents on all the files in the directory ./txt into a json file with each paragraph tagged as a separate text. It assumes that the original txt files have the paragraphs separated by at least one line with \n. 
+
+For 2) marcador.py has been changed into marcadomultiple.py, and can be invoked as:
+
+prodigy marcador settwo ./books2.jsonl ./patterns -F ./marcadormultiple.py 
+
+It assumes that the directory at ./patterns contains at least a .txt file with the patterns. The output of the processing is eventually written into the prodigy DB but also into the all_relations.csv file in tha format. 
+
+There are some issues with patterns that still do not work. I have put some example which do work in the repository at examples/patterns/patterns.txt
+
+
+end of report
+
+
+
+
+
+
