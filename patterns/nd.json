@@ -7,6 +7,7 @@
 {"pattern":"Charybdis","label":"GOD"}
 {"pattern":"Chimaera","label":"GOD"}
 {"pattern":"Chiron","label":"GOD"}
+{"pattern":"Cronos","label":"GOD"}
 {"pattern":"Cupid","label":"GOD"}
 {"pattern":"Demeter","label":"GOD"}
 {"pattern":"Eumenides","label":"GOD"}
@@ -134,9 +135,9 @@
 {"pattern":"Europe","label":"GPE"}
 {"pattern":"Gaul","label":"GPE"}
 {"pattern":"Gela","label":"GPE"}
-{"pattern":"Hades","label":"GPE"}
+{"pattern":"Hades","label":"LOC"}
 {"pattern":"Halicarnassus","label":"GPE"}
-{"pattern":"Halys","label":"GPE"}
+{"pattern":"Halys","label":"LOC"}
 {"pattern":"Helice","label":"GPE"}
 {"pattern":"Heliopolis","label":"GPE"}
 {"pattern":"Hellas","label":"GPE"}
@@ -147,7 +148,7 @@
 {"pattern":"Hybadai","label":"GPE"}
 {"pattern":"Hyele","label":"GPE"}
 {"pattern":"Iasos","label":"GPE"}
-{"pattern":"Ida","label":"GPE"}
+{"pattern":"Ida","label":"LOC"}
 {"pattern":"Ilissus","label":"GPE"}
 {"pattern":"Ilium","label":"GPE"}
 {"pattern":"India","label":"GPE"}
@@ -165,7 +166,7 @@
 {"pattern":"Larissa","label":"GPE"}
 {"pattern":"Lebedos","label":"GPE"}
 {"pattern":"Lemnos","label":"GPE"}
-{"pattern":"Lenaea","label":"GPE"}
+{"pattern":"Lenaea","label":"NORP"}
 {"pattern":"Leontini","label":"GPE"}
 {"pattern":"Lepreum","label":"GPE"}
 {"pattern":"Leros","label":"GPE"}
@@ -176,7 +177,7 @@
 {"pattern":"Lipara","label":"GPE"}
 {"pattern":"Locris","label":"GPE"}
 {"pattern":"Lucania","label":"GPE"}
-{"pattern":"Lycus","label":"GPE"}
+{"pattern":"Lycus","label":"LOC"}
 {"pattern":"Lydia","label":"GPE"}
 {"pattern":"Lysimachia","label":"GPE"}
 {"pattern":"Macedon","label":"GPE"}
@@ -199,7 +200,7 @@
 {"pattern":"Miletus","label":"GPE"}
 {"pattern":"Mitylene","label":"GPE"}
 {"pattern":"Oita","label":"GPE"}
-{"pattern":"Munichia","label":"GPE"}
+{"pattern":"Munichia","label":"LOC"}
 {"pattern":"Myndus","label":"GPE"}
 {"pattern":"Myra","label":"GPE"}
 {"pattern":"Myrlea","label":"GPE"}
@@ -207,7 +208,7 @@
 {"pattern":"Nestos","label":"GPE"}
 {"pattern":"Nicaea","label":"GPE"}
 {"pattern":"Nicomedia","label":"GPE"}
-{"pattern":"Nile","label":"GPE"}
+{"pattern":"Nile","label":"LOC"}
 {"pattern":"Odrysians","label":"NORP"}
 {"pattern":"Odrysian","label":"NORP"}
 {"pattern":"Olympia","label":"GPE"}
@@ -228,7 +229,7 @@
 {"pattern":"Pharsalus","label":"GPE"}
 {"pattern":"Phlius","label":"GPE"}
 {"pattern":"Phocaea","label":"GPE"}
-{"pattern":"Phocaean","label":"GPE"}
+{"pattern":"Phocaean","label":"NORP"}
 {"pattern":"Phoenicia","label":"GPE"}
 {"pattern":"Phrygia","label":"GPE"}
 {"pattern":"Phthia","label":"GPE"}
@@ -239,7 +240,7 @@
 {"pattern":"Pontus","label":"GPE"}
 {"pattern":"Potidaea","label":"GPE"}
 {"pattern":"Priene","label":"GPE"}
-{"pattern":"Propontis","label":"GPE"}
+{"pattern":"Propontis","label":"LOC"}
 {"pattern":"Prytaneum","label":"GPE"}
 {"pattern":"Ptolemais","label":"GPE"}
 {"pattern":"Red Sea","label":"GPE"}
@@ -515,7 +516,6 @@
 {"pattern":"Critobulus","label":"PERSON"}
 {"pattern":"Crobylus","label":"PERSON"}
 {"pattern":"Croesus","label":"PERSON"}
-{"pattern":"Cronos","label":"PERSON"}
 {"pattern":"Croton","label":"PERSON"}
 {"pattern":"Ctesibius","label":"PERSON"}
 {"pattern":"Ctesiclides","label":"PERSON"}
@@ -637,7 +637,7 @@
 {"pattern":"Gorgias","label":"PERSON"}
 {"pattern":"Gryllion","label":"PERSON"}
 {"pattern":"Gryllus","label":"PERSON"}
-{"pattern":"Gymnosophists","label":"PERSON"}
+{"pattern":"Gymnosophists","label":"NORP"}
 {"pattern":"Halcyoneus","label":"PERSON"}
 {"pattern":"Hannibal","label":"PERSON"}
 {"pattern":"Hecademus","label":"PERSON"}
@@ -731,6 +731,7 @@
 {"pattern":"Mausolus","label":"PERSON"}
 {"pattern":"Meandrius","label":"PERSON"}
 {"pattern":"Medes","label":"PERSON"}
+{"pattern":"Medes","label":"NORP"} 
 {"pattern":"Megabyzus","label":"PERSON"}
 {"pattern":"Megaclides","label":"PERSON"}
 {"pattern":"Melantes","label":"PERSON"}
@@ -1128,6 +1129,7 @@
 {"pattern":"Leosthenes","label":"PERSON"}
 {"pattern":"Lucian","label":"PERSON"}
 {"pattern":"Lycomedes","label":"PERSON"}
+{"pattern":"Lycus","label":"PERSON"}
 {"pattern":"Lysander","label":"PERSON"}
 {"pattern":"Lysistratus","label":"PERSON"}
 {"pattern":"Macedonians","label":"NORP"}
