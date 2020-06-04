@@ -270,6 +270,7 @@ def add_matches_to_stream(stream, patterns):
            print(matches)
        
            eg["relations"] = []
+           eg["logical_relations"] = []
            for match_id, token_idxs in matches:
                for each_pattern in token_idxs: 
                    tokens = [doc[i] for i in each_pattern]
@@ -283,13 +284,15 @@ def add_matches_to_stream(stream, patterns):
                    one_row = [counter] + tokens + [eg["text"]] 
                    writer.writerow(one_row) # to the csv
                    counter += 1
+                   
+                   eg["logical_relations"].append({"logic":str(tokens).strip('[]')}) # adding the logical relation to the db too
                  
                    branch = matcher._tree[match_id] # realnente es una lista de branches de este id
                    print(branch)
                    
                    for k in branch[0]:
                        for rel, j in branch[0][k]:
-                           print(tokens[k],"--",deps[j],rel,tokens[j]) 
+                           print(tokens[k],"--",deps[j],rel,tokens[j])
                            eg["relations"].append({"child": int(each_pattern[j]), "head": int(each_pattern[k]), "label": deps[j]})             
 
            print( eg["relations"])
@@ -299,6 +302,15 @@ def add_matches_to_stream(stream, patterns):
 
 @prodigy.recipe("marcador")
 def custom_dep_recipe(dataset, source, patterns_source):
+
+    # from https://prodi.gy/docs/custom-recipes
+    blocks = [
+        {"view_id": "relations"},
+        {"view_id": "text_input", "field_id": "logical_relations", "field_autofocus": True}
+        #{"view_id": "choice", "text": None},
+        #{"view_id": "text_input", "field_rows": 3, "field_label": "Explain your decision"}
+    ]
+
     patterns = load_patterns(patterns_source)
     
     stream = JSONL(source)                          # load the data
@@ -308,7 +320,11 @@ def custom_dep_recipe(dataset, source, patterns_source):
     return {
         "dataset": dataset,      # dataset to save annotations to
         "stream": stream,        # the incoming stream of examples
-        "view_id": "relations"  # annotation interface to use
+        "view_id": "blocks",     # annotation interface to use
+        "config": {
+            "labels": ["nsubj", "prep", "pobj", "dobj", "auxpass"],
+            "blocks": blocks
+        }
     }
 
 
