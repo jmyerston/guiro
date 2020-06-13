@@ -1,4 +1,4 @@
-# marcadormultiple.py v 0.1 (de marcador.py v 0.7) marcador de relaciones a partir de patrones
+# marcadormultiple.py v 1.0 (de marcador.py v 0.7) marcador de relaciones a partir de patrones
 # marcando todas las relaciones guardadas en archivos de textos en el directorio que se indique
 # Lee un archivo jsonl con los textos originales 
 # produciendo un archivo csv, all_relations.csv, con las relaciones y sus párrafos de origen 
@@ -6,6 +6,7 @@
 import prodigy
 from prodigy.components.loaders import JSONL
 from prodigy.components.preprocess import add_tokens
+from prodigy.util import split_string
 import spacy
 from spacy import displacy
 import random
@@ -14,7 +15,8 @@ import numpy
 from collections import Counter
 from spacy.matcher import DependencyMatcher
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Optional
+
 import csv
 from pathlib import Path
 
@@ -309,9 +311,10 @@ def add_matches_to_stream(stream, patterns):
 @prodigy.recipe("marcador",
     dataset=("The dataset to use", "positional", None, str),
     source=("The source data as a JSONL file", "positional", None, str),
-    patterns_source=("The directory of source data in plain text files", "positional", None, str)
+    patterns_source=("The directory of source data in plain text files", "positional", None, str),
+    exolabel=("One or more comma-separated labels", "option", "l", split_string)
 )
-def custom_dep_recipe(dataset, source, patterns_source):
+def custom_dep_recipe(dataset, source, patterns_source, exolabel: Optional[List[str]] = None):
     # from https://prodi.gy/docs/custom-recipes
     blocks = [
         {"view_id": "relations"},
@@ -326,13 +329,18 @@ def custom_dep_recipe(dataset, source, patterns_source):
     stream = JSONL(source)                          # load the data
     stream = add_tokens(spacy.blank("en"), stream)  # add "tokens" to stream
     stream = add_matches_to_stream(stream, patterns)  # add custom patterns
+    
+    if exolabel is None: 
+        labels = ["nsubj", "prep", "pobj", "dobj", "auxpass"]
+    else:
+        labels = ["nsubj", "prep", "pobj", "dobj", "auxpass"] + exolabel
 
     return {
         "dataset": dataset,      # dataset to save annotations to
         "stream": stream,        # the incoming stream of examples
         "view_id": "blocks",     # annotation interface to use
         "config": {
-            "labels": ["nsubj", "prep", "pobj", "dobj", "auxpass"],
+            "labels": labels,
             "blocks": blocks
         }
     }
