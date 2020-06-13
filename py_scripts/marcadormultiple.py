@@ -212,8 +212,8 @@ def construct_pattern(rules: List[List[str]]):
             if child in {"START_ENTITY", "END_ENTITY"}:
                 token_pattern["ENT_TYPE"] = {"NOT_IN": [""]}
                 token_pattern["POS"] = "NOUN"
-            elif child in {"ENTITY_ONE", "ENTITY_TWO", "ENTITY_THREE"}:
-                print("entity matched")
+            elif child in {"ENTITY_ONE", "ENTITY_TWO", "ENTITY_THREE", "ENTITY_FOUR", "ENTITY_FIVE"}:
+                print(child)
                 #token_pattern["ENT_TYPE"] = {"NOT_IN": [""]}
                 #token_pattern["POS"] = "NOUN"
                 #token_pattern["TEXT"] = {"REGEX": "*"}
@@ -229,6 +229,7 @@ def construct_pattern(rules: List[List[str]]):
             add_node(child, pattern)
 
     pattern = [{"SPEC": {"NODE_NAME": root}, "PATTERN": {"ORTH": root}}]
+    # pattern = [{"SPEC": {"NODE_NAME": root}, "PATTERN": {"LEMMA": root}}] # to use lemmas as root
     add_node(root, pattern)
 
     assert len(pattern) < 20
@@ -243,18 +244,18 @@ def add_matches_to_stream(stream, patterns):
        rules = [rule.split("|") for rule in pattern.split(" ")]
        constructed_pattern = construct_pattern(rules)
        count += 1
-       print("Adding these patterns ", rules)
+       print("Adding these patterns ", constructed_pattern)
        matcher.add("patron "+str(count), None, constructed_pattern)
          
-   print("Matcher full settings >")
-   print("patterns: ", matcher._patterns)
-   print("keys to token", matcher._keys_to_token)
-   print("root ", matcher._root)
-   print("entities ", matcher._entities)
-   print("callbacks ", matcher._callbacks)
-   print("nodos ", matcher._nodes)
-   print("árbol ", matcher._tree)
-   print("< Matcher full settings")
+   #print("Matcher full settings >")
+   #print("patterns: ", matcher._patterns)
+   #print("keys to token", matcher._keys_to_token)
+   #print("root ", matcher._root)
+   #print("entities ", matcher._entities)
+   #print("callbacks ", matcher._callbacks)
+   #print("nodos ", matcher._nodes)
+   #print("árbol ", matcher._tree)
+   #print("< Matcher full settings")
    
    # salida csv
    # based on https://stackoverflow.com/questions/33309436/python-elementtree-xml-output-to-csv
@@ -271,6 +272,8 @@ def add_matches_to_stream(stream, patterns):
        
            eg["relations"] = []
            eg["logical_relations"] = []
+           eg["rel"] = []
+           str_rel = ""
            for match_id, token_idxs in matches:
                for each_pattern in token_idxs: 
                    tokens = [doc[i] for i in each_pattern]
@@ -283,9 +286,10 @@ def add_matches_to_stream(stream, patterns):
                    print("<")
                    one_row = [counter] + tokens + [eg["text"]] 
                    writer.writerow(one_row) # to the csv
-                   counter += 1
                    
-                   eg["logical_relations"].append({"logic":str(tokens).strip('[]')}) # adding the logical relation to the db too
+                   eg["logical_relations"].append({"instance"+str(counter):str(tokens).strip('[]')})  # adding the logical relation to the db too
+                   str_rel += " instance "+str(counter)+" ("+str(tokens).strip('[]')+")\n"
+                   counter += 1
                  
                    branch = matcher._tree[match_id] # realnente es una lista de branches de este id
                    print(branch)
@@ -296,17 +300,23 @@ def add_matches_to_stream(stream, patterns):
                            eg["relations"].append({"child": int(each_pattern[j]), "head": int(each_pattern[k]), "label": deps[j]})             
 
            print( eg["relations"])
+           print( eg["logical_relations"])
+           eg["rel"] = [str_rel]
+           print( eg["rel"])
            yield eg
 
 
-
-@prodigy.recipe("marcador")
+@prodigy.recipe("marcador",
+    dataset=("The dataset to use", "positional", None, str),
+    source=("The source data as a JSONL file", "positional", None, str),
+    patterns_source=("The directory of source data in plain text files", "positional", None, str)
+)
 def custom_dep_recipe(dataset, source, patterns_source):
-
     # from https://prodi.gy/docs/custom-recipes
     blocks = [
         {"view_id": "relations"},
-        {"view_id": "text_input", "field_id": "logical_relations", "field_autofocus": True}
+        {"view_id": "text_input", "field_id": "rel", "field_label": "Relaciones: ", "field_rows": 10, "field_autofocus": True}
+        #{"view_id": "blocks" }
         #{"view_id": "choice", "text": None},
         #{"view_id": "text_input", "field_rows": 3, "field_label": "Explain your decision"}
     ]
