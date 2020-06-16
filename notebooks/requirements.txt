@@ -1,0 +1,4 @@
+spacy
+en-core-web-lg==2.2.5
+en-core-web-sm==2.2.5
+../models/en-diogenet-model
