@@ -1,4 +1,4 @@
-# marcadormultiple.py v 1.0 (de marcador.py v 0.7) marcador de relaciones a partir de patrones
+# marcadormultiple.py v 1.1 (de marcador.py v 0.7) marcador de relaciones a partir de patrones
 # marcando todas las relaciones guardadas en archivos de textos en el directorio que se indique
 # Lee un archivo jsonl con los textos originales 
 # produciendo un archivo csv, all_relations.csv, con las relaciones y sus párrafos de origen 
@@ -269,8 +269,12 @@ def add_matches_to_stream(stream, patterns):
        for eg in stream:
            doc = nlp(eg["text"])  # get the text to be matched upon
            matches = matcher(doc) # do the matching
+           
+           if eg["text"]=="":
+              continue  # jump over empty tasks
+              
            print(eg["text"])
-           print(matches)
+           #print(" aciertos ", matches)
        
            eg["relations"] = []
            eg["logical_relations"] = []
@@ -301,10 +305,25 @@ def add_matches_to_stream(stream, patterns):
                            print(tokens[k],"--",deps[j],rel,tokens[j])
                            eg["relations"].append({"child": int(each_pattern[j]), "head": int(each_pattern[k]), "label": deps[j]})             
 
-           print( eg["relations"])
-           print( eg["logical_relations"])
            eg["rel"] = [str_rel]
-           print( eg["rel"])
+
+           if eg["relations"]==[]:
+               eg.pop("relations") 
+           else: 
+               print("relations: ", eg["relations"]) 
+               
+           if eg["logical_relations"]==[]:  
+               eg.pop("logical_relations")    
+           else:
+               print("real relations: ", eg["logical_relations"])
+           
+           if eg["rel"] == ['']:
+               eg.pop("rel")
+           else: 
+               print("Para anotar: ", eg["rel"])
+           
+           #print("tarea completa:", eg)
+           
            yield eg
 
 
