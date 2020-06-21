@@ -18,6 +18,9 @@ doc = nlp("Pythagoras then went to Delos, to visit the Syrian Pherecydes, former
 
 for token in doc:
     print(str(token.text),  str(token.lemma_),  str(token.pos_),  str(token.dep_))
+    
+for ent in doc.ents:
+    print(ent.text, ent.label_)
 
 
 #>>> The, the, NOUN, nsubj
