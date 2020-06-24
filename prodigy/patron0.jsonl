@@ -1,3 +1,4 @@
+{ "loves, PERSON_1, PERSON_2": "love|nsubj|ANY ANY|compound|PERSON_1 love|dobj|PERSON_2" }
 { "loves, PERSON_1, PERSON_2": "love|nsubj|PERSON_1 love|dobj|PERSON_2" }
 { "hates, PERSON_1, PERSON_2": "hate|nsubj|PERSON_1 hate|dobj|PERSON_2" }
-{ "bores, PERSON_1, PERSON_2": "bore|nsubj|PERSON_1 bore|dobj|PERSON_2" }
+{ "bores, ENTITY_ONE, ENTITY_TWO": "bore|nsubj|ENTITY_ONE bore|dobj|ENTITY_TWO" }

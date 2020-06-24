@@ -22,7 +22,9 @@ import json
 import csv
 from pathlib import Path
 
+
 #nlp = spacy.load("en_core_sci_md")
+#nlp = spacy.load("en_core_web_sm")
 nlp = spacy.load("en_diogenet_model")
 nlp.add_pipe(merge_entities)
 
@@ -225,7 +227,7 @@ def construct_pattern(rules: List[List[str]]):
                 token_pattern["ENT_TYPE"] = {"NOT_IN": [""]}
                 token_pattern["POS"] = "NOUN"
             elif child in {"ENTITY_ONE", "ENTITY_TWO", "ENTITY_THREE", "ENTITY_FOUR", "ENTITY_FIVE"}:
-                r=0
+                pass
                 #print(child)
                 #token_pattern["ENT_TYPE"] = {"NOT_IN": [""]}
                 #token_pattern["POS"] = "NOUN"
@@ -283,11 +285,11 @@ def add_matches_to_stream(stream, patterns, datafile):
         rules = [rule.split("|") for rule in pattern.split(" ")]
         constructed_pattern = construct_pattern(rules)
         # print("Adding these patterns ", constructed_pattern)
-        matcher.add(str(lrelation), None, constructed_pattern)
+        matcher.add(str(lrelation)+","+str(count), None, constructed_pattern)
         #print("relation ", lrelation)
         keyslist = list(matcher._nodes.keys())
         #print("node ", keyslist[count])
-        patternid_and_lrels[keyslist[count]] = lrelation
+        patternid_and_lrels[keyslist[count]] = lrelation+","+str(count)
         count += 1
 
 
@@ -344,7 +346,7 @@ def add_matches_to_stream(stream, patterns, datafile):
                 lrelation = get_lrel(match_id)
                 final_rel += lrelation[0]  # takes the name of the relation only
                 for element in lrelation: 
-                    if element != lrelation[0]: # only first order
+                    if element != lrelation[0] and element != lrelation[len(lrelation)-1]: # neither first nor last
                         wordnumber = get_element_in_nodes(match_id, element)
                         final_rel = final_rel+", "+str(tokens[wordnumber])
                 
