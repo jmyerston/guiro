@@ -1,4 +1,4 @@
-# marcadorlineal.py v 0.5 (basado en marcadormultiple.py v 1.1) marcador de relaciones 
+# marcadorlineal.py v 0.6 (basado en marcadormultiple.py v 1.1) marcador de relaciones 
 # a partir de patrones guardados en un archivo json dado. 
 # Lee un archivo jsonl con los textos originales 
 # y recibe el nombre del archivo para el vaciado intermedio 
@@ -21,12 +21,15 @@ import json
 
 import csv
 from pathlib import Path
-
+import neuralcoref
 
 #nlp = spacy.load("en_core_sci_md")
 #nlp = spacy.load("en_core_web_sm")
-nlp = spacy.load("en_diogenet_model")
-nlp.add_pipe(merge_entities)
+#nlp = spacy.load("en_diogenet_model")
+# nlp.add_pipe(merge_entities)
+nlp = nlp=spacy.load("en_core_web_lg")
+neuralcoref.add_to_pipe(nlp)
+
 
 def visualise_doc(doc):
     #displacy.render(doc, style="dep", options={"distance": 120}, jupyter=True)
@@ -175,6 +178,11 @@ def location_labels():
     
 def wildcard_labels():
     return ["ANY", "ANY_1","ANY_2","ANY_3","ANY_4","ANY_5","WILDCAR", "*", "WILDC"]
+    
+def is_pronoun(token):
+    if str(token.lemma_) == "-PRON-":
+        return True 
+    return False 
 
 def construct_pattern(rules: List[List[str]]):
     """
@@ -257,6 +265,13 @@ def construct_pattern(rules: List[List[str]]):
 
     assert len(pattern) < 20
     return pattern
+
+def get_main_ref(doc, token):
+    for mention in doc._.coref_clusters:
+        for equiv in mention.mentions:
+            if equiv.text == token.text: 
+                return mention.main
+    return token
 
 
 def add_matches_to_stream(stream, patterns, datafile):    
@@ -348,7 +363,14 @@ def add_matches_to_stream(stream, patterns, datafile):
                 for element in lrelation: 
                     if element != lrelation[0] and element != lrelation[len(lrelation)-1]: # neither first nor last
                         wordnumber = get_element_in_nodes(match_id, element)
-                        final_rel = final_rel+", "+str(tokens[wordnumber])
+                        if doc._.has_coref: # solving correfs
+                            if is_pronoun(tokens[wordnumber]):
+                               actual_ref = get_main_ref(doc, tokens[wordnumber])
+                               final_rel = final_rel+", "+str(actual_ref)
+                            else:
+                               final_rel = final_rel+", "+str(tokens[wordnumber])  
+                        else:
+                            final_rel = final_rel+", "+str(tokens[wordnumber])
                 
                 #one_row = [counter] + tokens + [eg["text"]] 
                 #writer.writerow(one_row) # to the csv
