@@ -16,6 +16,7 @@ neuralcoref.add_to_pipe(nlp)
 #doc=nlp("Pythagoras II loves Juliet. But he bores her to death")
 #doc=nlp("Pythagoras from Tyre loves Juliet. But he bores her to death")
 doc=nlp("Thraso II loves Juliet. But he bores her to death")
+#x doc=nlp("Romeo Montague loves Juliet. But he bores her to death")
 
 if doc._.has_coref:
     for mention in doc._.coref_clusters:
@@ -30,6 +31,16 @@ if doc._.has_coref:
             if equiv.text == "him" or equiv.text == "She" or equiv.text == "he" or equiv.text == "her" : 
                 print("    is the reference for ", equiv.string)#, equiv.text, dir(equiv))
 
+
+def get_main_ref(doc, token):
+    for mention in doc._.coref_clusters:
+        for equiv in mention.mentions:
+            if equiv.text == token.text: 
+                return mention.main
+    return token
+
+
+print(get_main_ref(doc, doc[8]))
 
 #print(doc._.has_coref)
 #print(doc._.coref_clusters)
