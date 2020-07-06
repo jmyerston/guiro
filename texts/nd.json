@@ -21,6 +21,7 @@
 {"pattern":"Leda","label":"GOD"}
 {"pattern":"Mars","label":"GOD"}
 {"pattern":"Muses","label":"GOD"}
+{"pattern":"Musaeus","label":"PERSON"}
 {"pattern":"Neleus","label":"GOD"}
 {"pattern":"Nemesis","label":"GOD"}
 {"pattern":"Nymphs","label":"GOD"}
@@ -61,13 +62,14 @@
 {"pattern":"Areiopagos","label":"GPE"}
 {"pattern":"Argos","label":"GPE"}
 {"pattern":"Arkadia","label":"GPE"}
-{"pattern":"Asia","label":"GPE"}
+{"pattern":"Asia","label":"LOC"}
 {"pattern":"Aspendos","label":"GPE"}
 {"pattern":"Assos","label":"GPE"}
 {"pattern":"Astypalaea","label":"GPE"}
 {"pattern":"Atarneus","label":"GPE"}
 {"pattern":"Athenae","label":"GPE"}
-{"pattern":"Attica","label":"GPE"}
+{"pattern":"Athens","label":"GPE"}
+{"pattern":"Attica","label":"LOC"}
 {"pattern":"Babylon","label":"GPE"}
 {"pattern":"Bargylia","label":"GPE"}
 {"pattern":"Bithynia","label":"GPE"}
@@ -135,6 +137,9 @@
 {"pattern":"Europe","label":"GPE"}
 {"pattern":"Gaul","label":"GPE"}
 {"pattern":"Gela","label":"GPE"}
+{"pattern":"Greece","label":"LOC"}
+{"pattern":"Greeks","label":"NORP"}
+{"pattern":"Greek","label":"NORP"}
 {"pattern":"Hades","label":"LOC"}
 {"pattern":"Halicarnassus","label":"GPE"}
 {"pattern":"Halys","label":"LOC"}
