@@ -1,25 +1,37 @@
-# marcador.py v 0.7 marcador de relaciones a partir de patrones
-# marcando la relación went to (ver add_matches_to_stream)
-# leyendo un archivo jsonl con los textos originales 
-# produciendo un archivo csv, went_to_relation.csv, con las relaciones y sus párrafos de origen 
+# marcador.py v 2.0 (basado en marcadormultiple.py v 1.1) 
+# Funciona de dos maneras. Como simple pytho script marcador de relaciones 
+# a partir de patrones guardados en un archivo json dado. 
+# Lee un archivo jsonl con los textos originales 
+# y recibe el nombre del archivo para el vaciado intermedio y en un csv.
+# La segunda forma es como recipe prodigy para invocar la interfaz con
+# la que un anotador puede aprobar, corregir o rechazar instancias de relaciones.
 
 import prodigy
 from prodigy.components.loaders import JSONL
 from prodigy.components.preprocess import add_tokens
+from prodigy.util import split_string
 import spacy
 from spacy import displacy
 import random
 import matplotlib.pyplot as plt
 import numpy
-from collections import Counter
+from collections import Counter, defaultdict
 from spacy.matcher import DependencyMatcher
-from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Optional
+from spacy.pipeline import merge_entities
+import copy
+import json
+
 import csv
 from pathlib import Path
+#import neuralcoref
 
 #nlp = spacy.load("en_core_sci_md")
-nlp = spacy.load("en_diogenet_model")
+#nlp = spacy.load("en_core_web_sm")
+#nlp = spacy.load("en_diogenet_model")
+# nlp.add_pipe(merge_entities)
+nlp = nlp=spacy.load("en_core_web_lg")
+#neuralcoref.add_to_pipe(nlp)
 
 
 def visualise_doc(doc):
@@ -161,6 +173,19 @@ def check_for_non_trees(rules: List[List[str]]):
 
     return root, parent_to_children
 
+def person_labels():
+    return ["PERSON", "PERSON_1", "PERSON_2", "PERSON_3", "PERSON_4", "PERSON_5"]
+    
+def location_labels():
+    return ["LOC", "GPE", "LOC_1", "GPE_1", "LOC_2", "GPE_2", "LOC_3", "GPE_3"]
+    
+def wildcard_labels():
+    return ["ANY", "ANY_1","ANY_2","ANY_3","ANY_4","ANY_5","WILDCAR", "*", "WILDC"]
+    
+def is_pronoun(token):
+    if str(token.lemma_) == "-PRON-":
+        return True 
+    return False 
 
 def construct_pattern(rules: List[List[str]]):
     """
@@ -212,103 +237,242 @@ def construct_pattern(rules: List[List[str]]):
             if child in {"START_ENTITY", "END_ENTITY"}:
                 token_pattern["ENT_TYPE"] = {"NOT_IN": [""]}
                 token_pattern["POS"] = "NOUN"
-            elif child in {"ENTITY_ONE", "ENTITY_TWO", "ENTITY_THREE"}:
-                print("entity matched")
+            elif child in {"ENTITY_ONE", "ENTITY_TWO", "ENTITY_THREE", "ENTITY_FOUR", "ENTITY_FIVE"}:
+                pass
+                #print(child)
                 #token_pattern["ENT_TYPE"] = {"NOT_IN": [""]}
                 #token_pattern["POS"] = "NOUN"
                 #token_pattern["TEXT"] = {"REGEX": "*"}
             # If we are on part of the path which is not the start/end entity,
             # we want the word to match. This could be made very flexible, e.g matching
-            # verbs instead, etc.
+            elif child in person_labels():
+                token_pattern["ENT_TYPE"] = "PERSON"
+                #print("PERSON ", child)
+            elif child in location_labels():
+                token_pattern["ENT_TYPE"] = "GPE"
+                #print("LOCATION ", child)
+            elif child in wildcard_labels():
+                pass
+                #print("ANYTHING ", child)
             else:
-                token_pattern["ORTH"] = child
+                #token_pattern["ORTH"] = child
+                token_pattern["LEMMA"] = child  #working with lemmas
 
             node["PATTERN"] = token_pattern
 
             pattern.append(node)
             add_node(child, pattern)
 
-    pattern = [{"SPEC": {"NODE_NAME": root}, "PATTERN": {"ORTH": root}}]
+    #pattern = [{"SPEC": {"NODE_NAME": root}, "PATTERN": {"ORTH": root}}]
+    pattern = [{"SPEC": {"NODE_NAME": root}, "PATTERN": {"LEMMA": root}}] # to use lemmas as root
     add_node(root, pattern)
 
     assert len(pattern) < 20
     return pattern
 
+def get_main_ref(doc, token):
+    for mention in doc._.coref_clusters:
+        for equiv in mention.mentions:
+            if equiv.text == token.text: 
+                return mention.main
+    return token
 
-def add_matches_to_stream(stream, patterns):
-   # patterns = "went|nsubj|ENTITY_ONE went|prep|to to|pobj|ENTITY_TWO"
-   matcher = DependencyMatcher(nlp.vocab)
-   count = 0
-   for pattern in patterns:
-       rules = [rule.split("|") for rule in pattern.split(" ")]
-       constructed_pattern = construct_pattern(rules)
-       count += 1
-       print("Adding these patterns ", rules)
-       matcher.add("patron "+str(count), None, constructed_pattern)
-         
-   print("Matcher full settings >")
-   print("patterns: ", matcher._patterns)
-   print("keys to token", matcher._keys_to_token)
-   print("root ", matcher._root)
-   print("entities ", matcher._entities)
-   print("callbacks ", matcher._callbacks)
-   print("nodos ", matcher._nodes)
-   print("árbol ", matcher._tree)
-   print("< Matcher full settings")
-   
-   # salida csv
-   # based on https://stackoverflow.com/questions/33309436/python-elementtree-xml-output-to-csv
-   with open('all_relations.csv', 'w', newline='') as r:  # [went, Pythagoras, to, Delos]
-       writer = csv.writer(r,  delimiter=' ', quotechar='"', quoting=csv.QUOTE_ALL)
-       #writer.writerow(['id', 'relation','subject','to','destination', 'source_text'])  # WRITING HEADERS
-       # rows vary in lenght. Therefore cannot use just one header
-       counter = 1;
-       for eg in stream:
-           doc = nlp(eg["text"])  # get the text to be matched upon
-           matches = matcher(doc) # do the matching
-           print(eg["text"])
-           print(matches)
+
+def add_matches_to_stream(stream, patterns, datafile, csvfile):    
+    #print(patterns)
+
+    patternid_and_lrels = {} # a dict for (patternids: lrel) items
        
-           eg["relations"] = []
-           for match_id, token_idxs in matches:
-               for each_pattern in token_idxs: 
-                   tokens = [doc[i] for i in each_pattern]
-                   heads = [doc[i].head for i in each_pattern]
-                   deps = [doc[i].dep_ for i in each_pattern]
-                   print("tokens>")
-                   print(tokens)
-                   print(heads)
-                   print(deps)
-                   print("<")
-                   one_row = [counter] + tokens + [eg["text"]] 
-                   writer.writerow(one_row) # to the csv
-                   counter += 1
-                 
-                   branch = matcher._tree[match_id] # realnente es una lista de branches de este id
-                   print(branch)
-                   
-                   for k in branch[0]:
-                       for rel, j in branch[0][k]:
-                           print(tokens[k],"--",deps[j],rel,tokens[j]) 
-                           eg["relations"].append({"child": int(each_pattern[j]), "head": int(each_pattern[k]), "label": deps[j]})             
+    def get_lrel(patternid):
+       lrel = patternid_and_lrels[patternid]
+       llrel = [x.strip() for x in lrel.split(",")]  # transform the lrel string into a list
+       return llrel
+       
+    def get_patternid(lrel):
+        for patterind in patternid_and_lrels.keys():
+            if patternid_and_lrels[patternid] == lrel:
+                return patternid
+           
+    count = 0
+       
+    matcher = DependencyMatcher(nlp.vocab)
+    for generated in patterns:
+        #print(str(generated))
+        #print(dir(generated))
+        [(lrelation, pattern)] = generated.items()
+           
+        rules = [rule.split("|") for rule in pattern.split(" ")]
+        constructed_pattern = construct_pattern(rules)
+        # print("Adding these patterns ", constructed_pattern)
+        matcher.add(str(lrelation)+","+str(count), None, constructed_pattern)
+        #print("relation ", lrelation)
+        keyslist = list(matcher._nodes.keys())
+        #print("node ", keyslist[count])
+        patternid_and_lrels[keyslist[count]] = lrelation+","+str(count)
+        count += 1
 
-           print( eg["relations"])
-           yield eg
 
-
-
-@prodigy.recipe("marcador")
-def custom_dep_recipe(dataset, source, patterns_source):
-    patterns = load_patterns(patterns_source)
+    print(patternid_and_lrels)
+         
+    #print("Matcher's settings >")
+    #print("patterns: ", matcher._patterns)
+    #print("keys to token", matcher._keys_to_token)
+    #print("root ", matcher._root)
+    #print("entities ", matcher._entities)
+    #print("callbacks ", matcher._callbacks)
+    #print("nodes ", matcher._nodes)
+    #print("tree ", matcher._tree)
+    #print("< Matcher's settings")
     
-    stream = JSONL(source)                          # load the data
-    stream = add_tokens(spacy.blank("en"), stream)  # add "tokens" to stream
-    stream = add_matches_to_stream(stream, patterns)  # add custom patterns
+    def get_element_in_nodes(patternid, element):
+        listofpatterns = matcher._nodes[patternid]
+        print(element, "> ", listofpatterns[0][element])
+        return listofpatterns[0][element]
+
+    # first output of the process, a csv
+    # based on https://stackoverflow.com/questions/33309436/python-elementtree-xml-output-to-csv
+    with open(csvfile, 'w', newline='') as r:  # [went, Pythagoras, to, Delos]
+        writer = csv.writer(r,  delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+
+
+        counter = 1;
+        alltegs = []    
+        for eg in stream:
+            doc = nlp(eg["text"])  # get the text to be matched upon
+           
+            if eg["text"]=="":
+                #continue  # jump over empty tasks
+                #eg["text"]=="(DELETE empty lines)"
+                return []
+            
+            matches = matcher(doc) # do the matching
+           
+            print("aplicando al texto >",eg["text"], "<")
+            print(" aciertos ", matches)
+       
+            eg["relations"] = []
+            eg["logical_relation"] = ""
+            #eg["rel"] = []
+            #str_rel = ""
+      
+            for match_id, token_idxs in matches:
+                teg= copy.deepcopy(eg) # deep copy of the example from the original stream
+                final_rel = ""
+                for each_pattern in token_idxs:
+                    tokens = [doc[i] for i in each_pattern]
+                    #heads = [doc[i].head for i in each_pattern]
+                    deps = [doc[i].dep_ for i in each_pattern]
+                    #print("tokens>", tokens, "<")
+                    #    print(tokens)
+                    #    print(heads)
+                    #    print(deps)
+                    #print("<")
+                
+                    lrelation = get_lrel(match_id)
+                    final_rel += lrelation[0]  # takes the name of the relation only
+                    for element in lrelation: 
+                        if element != lrelation[0] and element != lrelation[len(lrelation)-1]: # neither first nor last
+                            wordnumber = get_element_in_nodes(match_id, element)
+                            final_rel = final_rel+", "+str(tokens[wordnumber])
+                            #if doc._.has_coref: # solving correfs
+                            #    if is_pronoun(tokens[wordnumber]):
+                            #       actual_ref = get_main_ref(doc, tokens[wordnumber])
+                            #       final_rel = final_rel+", "+str(actual_ref)
+                            #    else:
+                            #       final_rel = final_rel+", "+str(tokens[wordnumber])  
+                            #else:
+                            #    final_rel = final_rel+", "+str(tokens[wordnumber])
+                
+                    one_row = [counter] + tokens + [eg["text"]] 
+                    writer.writerow(one_row) # to the csv
+                    
+                    #eg["logical_relation"].append({"instance"+str(counter):str(tokens).strip('[]')})  # adding the logical relation to the db too
+                    teg["logical_relation"] = final_rel # str(tokens).strip('[]')
+                    #str_rel += " instance "+str(counter)+" ("+str(tokens).strip('[]')+")\n"
+                    counter += 1
+                 
+                    branch = matcher._tree[match_id] # realnente es una lista de branches de este id
+                    #print(branch)
+                   
+                    for k in branch[0]:
+                        for rel, j in branch[0][k]:
+                            #print(tokens[k],"--",deps[j],rel,tokens[j])
+                            teg["relations"].append({"child": int(each_pattern[j]), "head": int(each_pattern[k]), "label": deps[j]})             
+
+                    #teg["rel"] = [str_rel]
+                    #print("teg>", teg)
+
+                    if teg["relations"]==[]:
+                        teg.pop("relations") 
+                    #else: 
+                    #    print("relations: ", teg["relations"]) 
+               
+                    if teg["logical_relation"]==[]:  
+                        teg.pop("logical_relation")  
+           
+                    alltegs += [teg]  # it adds one copy of the example subjected to one pattern at the time
+ 
+ 
+        print("\nAll new eg>", alltegs, "<\n") 
+ 
+ 
+    # producing second output of the process
+    with open(datafile, 'w') as outfile:
+        for neg in alltegs:
+            json.dump(neg, outfile)
+            outfile.write('\n')
+
+
+@prodigy.recipe("marcador",
+    source=("INPUT: The source data as a JSONL file", "positional", None, str),
+    patterns_source=("INPUT: The patterns as a JSONL file", "positional", None, str),
+    datafile=("OUTPUT: A JSONL file to store data in", "positional", None, str),
+    csvfile=("OUTPUT: A csv file with the logical relations", "positional", None, str),
+)
+def custom_dep_recipe(source, patterns_source, datafile, csvfile):
+    # patterns = load_patterns(patterns_source)
+    #print("loading the patterns")
+    patterns = JSONL(patterns_source)
+    
+    #print("loading the original data")
+    stream0 = JSONL(source)                          # load the data
+    stream0 = add_tokens(spacy.blank("en"), stream0)  # add "tokens" to stream
+    add_matches_to_stream(stream0, patterns, datafile, csvfile)  # add custom patterns to a json intermediate file
+
+    return {
+    }
+
+
+@prodigy.recipe("anotador",
+    dataset=("The dataset to use", "positional", None, str),
+    source=("The source data as a JSONL file", "positional", None, str),
+    exolabel=("One or more comma-separated labels", "option", "l", split_string)
+)
+def custom_dep_recipe(dataset, source, exolabel: Optional[List[str]] = None):
+    # from https://prodi.gy/docs/custom-recipes
+    blocks = [
+        {"view_id": "relations"},
+        {"view_id": "text_input", "field_id": "logical_relation", "field_label": "Relation: ", "field_rows": 1, "field_autofocus": True}
+        #{"view_id": "blocks" }
+        #{"view_id": "choice", "text": None},
+        #{"view_id": "text_input", "field_rows": 3, "field_label": "Explain your decision"}
+    ]
+    
+    stream = JSONL(source)
+    
+    if exolabel is None: 
+        labels = ["nsubj", "prep", "pobj", "dobj", "auxpass"]
+    else:
+        labels = ["nsubj", "prep", "pobj", "dobj", "auxpass"] + exolabel
 
     return {
         "dataset": dataset,      # dataset to save annotations to
         "stream": stream,        # the incoming stream of examples
-        "view_id": "relations"  # annotation interface to use
+        "view_id": "blocks",     # annotation interface to use
+        "config": {
+            "labels": labels,
+            "blocks": blocks
+        }
     }
 
 
@@ -328,5 +492,9 @@ def load_patterns(pattern_pathfile):
         lines = Path(file_path).open("r", encoding="utf8")  # open file
         lines = [line.rstrip("\n") for line in lines]
     return lines
+
+
+
+
 
 
