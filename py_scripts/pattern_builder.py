@@ -238,7 +238,7 @@ def construct_pattern(rules: List[List[str]]):
             if child in {"START_ENTITY", "END_ENTITY"}:
                 token_pattern["ENT_TYPE"] = {"NOT_IN": [""]}
                 token_pattern["POS"] = "NOUN"
-            elif child in {"ENTITY_ONE", "ENTITY_TWO", "ENTITY_THREE", "ENTITY_FOUR", "ENTITY_FIVE"}:
+            elif child in {"PERSON_1", "PERSON_2", "PERSON_3", "GPE_1", "GPE_2"}:
                 print(child)
                 #token_pattern["ENT_TYPE"] = {"NOT_IN": [""]}
                 #token_pattern["POS"] = "NOUN"
