@@ -1,4 +1,4 @@
-# marcador.py v 2.0 (basado en marcadormultiple.py v 1.1) 
+# marcador.py v 2.1 (basado en marcadormultiple.py v 1.1) 
 # Funciona de dos maneras. Como simple pytho script marcador de relaciones 
 # a partir de patrones guardados en un archivo json dado. 
 # Lee un archivo jsonl con los textos originales 
@@ -246,10 +246,12 @@ def construct_pattern(rules: List[List[str]]):
             # If we are on part of the path which is not the start/end entity,
             # we want the word to match. This could be made very flexible, e.g matching
             elif child in person_labels():
-                token_pattern["ENT_TYPE"] = "PERSON"
+                pass
+                #token_pattern["ENT_TYPE"] = "PERSON"  # depends on a well trained model
                 #print("PERSON ", child)
             elif child in location_labels():
-                token_pattern["ENT_TYPE"] = "GPE"
+                pass
+                #token_pattern["ENT_TYPE"] = "GPE"  # depends on a well trained model
                 #print("LOCATION ", child)
             elif child in wildcard_labels():
                 pass
@@ -302,8 +304,9 @@ def add_matches_to_stream(stream, patterns, datafile, csvfile):
         [(lrelation, pattern)] = generated.items()
            
         rules = [rule.split("|") for rule in pattern.split(" ")]
+        #print("rules", rules)
         constructed_pattern = construct_pattern(rules)
-        # print("Adding these patterns ", constructed_pattern)
+        print("Adding these patterns ", constructed_pattern)
         matcher.add(str(lrelation)+","+str(count), None, constructed_pattern)
         #print("relation ", lrelation)
         keyslist = list(matcher._nodes.keys())
@@ -383,7 +386,8 @@ def add_matches_to_stream(stream, patterns, datafile, csvfile):
                             #else:
                             #    final_rel = final_rel+", "+str(tokens[wordnumber])
                 
-                    one_row = [counter] + tokens + [eg["text"]] 
+                    #one_row = [counter] + tokens + [eg["text"]] 
+                    one_row = [counter] + [final_rel] + [eg["text"]] 
                     writer.writerow(one_row) # to the csv
                     
                     #eg["logical_relation"].append({"instance"+str(counter):str(tokens).strip('[]')})  # adding the logical relation to the db too
