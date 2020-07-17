@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 { "traveled_to, PERSON_1, GPE_1": "confer|nsubj|PERSON_1 confer|prep|in in|pobj|GPE_1" }
 { "traveled_to, PERSON_1, GPE_1": "journey|nsubj|PERSON_1 journey|prep|ANY_1 ANY_1|pobj|GPE_1" }
 { "traveled_to, PERSON_1, GPE_1": "open|nsubj|PERSON_1 open|dobj|ANY_1 open|advcl|return return|prep|ANY_2 ANY_2|pobj|GPE_1" }
@@ -10,17 +9,4 @@
 { "traveled_to, PERSON_1, GPE_1": "bear|dobj|PERSON_1 PERSON_1|appos|GPE_1" }
 { "traveled_to, PERSON_1, GPE_1": "bear|dobj|son son|appos|PERSON_1 bear|conj|take take|prep|to to|pobj|GPE_1" }
 { "traveled_to, PERSON_1, GPE_1": "return|nsubj|PERSON_1 return|prep|to to|pobj|GPE_1" }
-=======
-{ "traveled_to, PERSON_1, GPE_1": "confer|nsubj|PERSON_1 confer|prep|in in|pobj|GPE_1" }
-{ "traveled_to, PERSON_1, GPE_1": "journey|nsubj|PERSON_1 journey|prep|ANY_1 ANY_1|pobj|GPE_1" }
-{ "traveled_to, PERSON_1, GPE_1": "open|nsubj|PERSON_1 open|dobj|ANY_1 open|advcl|return return|prep|ANY_2 ANY_2|pobj|GPE_1" }
-{ "traveled_to, PERSON_1, GPE_1": "send|nsubjpass|PERSON_1 send|prep|from from|pobj|GPE_1 from|prep|to to|pobj|GPE_2" }
-{ "traveled_to, PERSON_1, GPE_1": "give|nsubjpass|PERSON_1 give|dative|to to|pobj|ANY_1 ANY_1|prep|ANY_2 ANY_2|pobj|GPE_1" }
-{ "traveled_to, PERSON_1, GPE_1": "live|nsubj|PERSON_1 live|prep|in in|pobj|GPE_1" }
-{ "traveled_to, PERSON_1, GPE_1":"take|prep|on on|pobj|sailing sailing|prep|to to|pobj|GPE_1 take|nsubj|PERSON_2 take|dobj|youth youth|appos|PERSON_1" }
-{ "traveled_to, PERSON_1, GPE_1": "be|nsubj|PERSON_1 be|prep|ANY_1 ANY_1|pobj|GPE_1" }
-{ "traveled_to, PERSON_1, GPE_1": "bear|dobj|PERSON_1 PERSON_1|appos|GPE_1" }
-{ "traveled_to, PERSON_1, GPE_1": "bear|dobj|son son|appos|PERSON_1 bear|conj|take take|prep|to to|pobj|GPE_1" }
-{ "traveled_to, PERSON_1, GPE_1": "return|nsubj|PERSON_1 return|prep|to to|pobj|GPE_1" }
->>>>>>> 8389bb337f673a8587f07d4937dcc9bb24855dc4
 { "traveled_to, PERSON_1, GPE_1": "go|nsubj|PERSON_1 go|advcl|arise arise|prep|in in|pobj|GPE_1" }
